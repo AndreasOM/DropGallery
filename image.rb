@@ -8,7 +8,14 @@ class Image
 	
 	def name=( name )
 		@name = name
-		@clean_name = name
 		@thumb_name = "thumb_"+name
+		if name =~ /^\d\d\d\d-(.+)$/
+			@clean_name = $~[ 1 ]
+		else
+			@clean_name = name
+		end
+		if @clean_name =~ /^(.+)\.jpg$/i
+			@clean_name = $~[ 1 ]
+		end
 	end
 end
