@@ -17,22 +17,23 @@ albums = {}
 Dir.glob(srcdir+'**/*.jpg', File::FNM_CASEFOLD).sort.each do |srcname|
 	if srcname =~ /^#{srcdir}(.+)$/
 		name = $~[1]
-		destname = destdir+"/"+name
 		albumname = File.dirname( name )
 		imgname = File.basename( name )
-		destthumbname = destdir+"/"+albumname+"/thumb_"+imgname
 		
+		album = gallery.find_album( albumname )
+		image = Image.new
+		image.name = imgname
+		
+		destname = destdir+"/"+album.clean_name+"/"+imgname
+		destthumbname = destdir+"/"+album.clean_name+"/thumb_"+imgname
 		# ensure the target directory exists
 		File.makedirs( File.dirname( destname ) )
 		
 		if !File.exists?( destname ) || File.mtime( srcname ) > File.mtime( destname )
-			puts "Needs update"
+			puts "Needs update ( "+image.name+" )"
 			system( "convert", srcname, "-resize", "800x600>", destname )
 			system( "convert", srcname, "-resize", "260x200>", destthumbname )
 		end
-		album = gallery.find_album( albumname )
-		image = Image.new
-		image.name = imgname
 		album.add_image( image )
 	end
 end
@@ -57,7 +58,7 @@ albumname = ""
 images = []
 listmarkdown = ERB.new( listtemplate )
 File.open( destdir+"/index.page", "w") do |out|
-#		doc = Maruku.new( albummarkdown )
+#		doc = Maruku.new( listmarkdown )
 #		out.write( doc.to_html )
 	out.write( listmarkdown.result )
 end
