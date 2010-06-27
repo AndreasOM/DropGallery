@@ -9,6 +9,8 @@ class Album
 	end
 	def name=( name )
 		@name = name
+		puts "Name "+name
+		@clean_name = name
 	end
 	
 	def add_image( image )

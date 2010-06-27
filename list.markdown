@@ -1,8 +1,8 @@
 [TITLE]Galerie[/TITLE]
 [CONTENT]
 <ul>
-	<% albums.sort.each do |album,images| %>
-	<li><a href="<%= album %>/"><%= album %></a></li>
+	<% gallery.albums.each do |album| %>
+	<li><a href="<%= album.name %>/"><%= album.clean_name %></a></li>
 	<% end %>
 </ul>
 [/CONTENT]

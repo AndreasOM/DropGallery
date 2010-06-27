@@ -4,22 +4,23 @@ require 'erb'
 require 'maruku'
 require 'ftools'
 
+require 'album'
+require 'gallery'
+require 'image'
+
 srcdir = ARGV.shift
 destdir = ARGV.shift
 
+gallery = Gallery.new
+
 albums = {}
-# Dir[srcdir+'**/*.jpg'].sort.each do |f|
 Dir.glob(srcdir+'**/*.jpg', File::FNM_CASEFOLD).sort.each do |srcname|
-#	p f
 	if srcname =~ /^#{srcdir}(.+)$/
-#		p $~
-#		p $~[1]
 		name = $~[1]
 		destname = destdir+"/"+name
 		albumname = File.dirname( name )
 		imgname = File.basename( name )
 		destthumbname = destdir+"/"+albumname+"/thumb_"+imgname
-#		puts srcname+" -> "+name+" -> "+destname
 		
 		# ensure the target directory exists
 		File.makedirs( File.dirname( destname ) )
@@ -29,42 +30,34 @@ Dir.glob(srcdir+'**/*.jpg', File::FNM_CASEFOLD).sort.each do |srcname|
 			system( "convert", srcname, "-resize", "800x600>", destname )
 			system( "convert", srcname, "-resize", "260x200>", destthumbname )
 		end
-		if !albums[ albumname ]
-			puts "New album "+albumname
-			albums[ albumname ] = []
-		end
-		albums[ albumname ] << imgname
+		album = gallery.find_album( albumname )
+		image = Image.new
+		image.name = imgname
+		album.add_image( image )
 	end
 end
-puts
-puts
-# file = File.open("album.markdown", "rb")
-# albumtemplate = file.read
+
 albumtemplate = File.read("album.markdown")
 album = ""
 albumname = ""
 images = []
-albums.each do |album, images|
-	p album
-	albumname = album
+
+gallery.albums.each { |album|
+	p album.clean_name
 	albummarkdown = ERB.new( albumtemplate )
-#	puts albummarkdown.result
-	File.open( destdir+"/"+album+"/index.page", "w") do |out|
+	File.open( destdir+"/"+album.clean_name+"/index.page", "w") do |out|
 #		doc = Maruku.new( albummarkdown )
 #		out.write( doc.to_html )
 		out.write( albummarkdown.result )
 	end
-end
-
+}
 listtemplate = File.read("list.markdown")
 album = ""
 albumname = ""
 images = []
 listmarkdown = ERB.new( listtemplate )
-#	puts albummarkdown.result
 File.open( destdir+"/index.page", "w") do |out|
 #		doc = Maruku.new( albummarkdown )
 #		out.write( doc.to_html )
 	out.write( listmarkdown.result )
 end
-
