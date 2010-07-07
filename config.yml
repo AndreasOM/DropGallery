@@ -1,0 +1,8 @@
+development:
+    source: /Users/anti/data/Dropbox/Dropbox/Elfenrausch-Gallerie
+    work: /Users/anti/data/Dropbox/Dropbox/Customers/Elfenrausch/Galerie
+    
+production:
+    source: /Users/anti/data/Dropbox/Dropbox/Elfenrausch-Gallerie
+    work: /Users/anti/data/Dropbox/Dropbox/Customers/Elfenrausch/Galerie
+    destination: rsync+ssh://elfenrausch.de:web/elfenrausch.de/galerie/
