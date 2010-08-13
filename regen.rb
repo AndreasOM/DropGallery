@@ -8,19 +8,29 @@ require 'album'
 require 'gallery'
 require 'image'
 
-environment = "production"	# :TODO: get from commandline/environment
-#environment = "development"	# :TODO: get from commandline/environment
+if ENV[ "ENVIRONMENT" ]
+	environment = ENV[ "ENVIRONMENT" ]
+else
+	environment = "development"
+end
 
 APP_CONFIG = YAML.load_file( 'config.yml' )[environment]
+if !APP_CONFIG
+	puts "Missing configuration for #{environment}."
+	exit
+end
+
 srcdir = APP_CONFIG['source']
 workdir = APP_CONFIG['work']
 destination = APP_CONFIG['destination']
-#srcdir = ARGV.shift
-#workdir = ARGV.shift
+
+# :TODO: make curly braces on env expansion optional
+srcdir.gsub!(/\$\{(\w+)\}/) { ENV[ $1 ] } if srcdir
+workdir.gsub!(/\$\{(\w+)\}/) { ENV[ $1 ] } if workdir
+destination.gsub!(/\$\{(\w+)\}/) { ENV[ $1 ] } if destination
 
 p srcdir
 p workdir
-
 gallery = Gallery.new
 
 albums = {}
@@ -55,6 +65,13 @@ images = []
 
 gallery.albums.each { |album|
 	p album.clean_name
+	# add description
+	descfilename = srcdir+album.name+"/description.markdown"
+#	puts "||"+descfilename
+	if File.exists?( descfilename )
+		doc = Maruku.new( IO.read( descfilename ) )
+		album.description = doc.to_html
+	end
 	albummarkdown = ERB.new( albumtemplate )
 	File.open( workdir+"/"+album.clean_name+"/index.page", "w") do |out|
 #		doc = Maruku.new( albummarkdown )
@@ -89,3 +106,4 @@ if destination
 		end
 	end
 end
+
