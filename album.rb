@@ -18,8 +18,11 @@ class Album
 			if part =~ /^\d\d\d\d-(.+)$/
 				part = $~[ 1 ]
 			end
-			@clean_name += seperator+part
-			seperator = "/"
+			if part.size > 0
+			then
+				@clean_name += seperator+part
+				seperator = "/"
+			end
 		}
 #		puts @clean_name
 	end
