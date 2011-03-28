@@ -4,6 +4,8 @@ require 'erb'
 require 'maruku'
 require 'ftools'
 
+require 'yaml'
+
 require 'album'
 require 'gallery'
 require 'image'
